@@ -1,5 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
+require("dotenv").config();
+const Person = require("./person");
 const cors = require("cors");
 
 const app = express();
@@ -10,42 +12,25 @@ app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
 
-let persons = [
-  {
-    name: "Arto Hellas",
-    number: "040-12345645",
-    id: 1,
-  },
-  {
-    name: "Ada Lovelace",
-    number: "39-44523523",
-    id: 2,
-  },
-  {
-    name: "Dan Abramov",
-    number: "12-43-234345",
-    id: 3,
-  },
-  {
-    name: "Masfikul Alam",
-    number: "0139217301",
-    id: 4,
-  },
-];
-
 app.get("/", (req, res) => {
-  res.send("<h1>Hello World</h1>");
+  res.send("<h1>Welcome to phonebook</h1>");
 });
 
 app.get("/api/persons", (req, res) => {
-  res.json(persons);
+  Person.find({}).then((data) => res.json(data));
 });
 
 app.get("/api/persons/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const note = persons.find((n) => n.id === id);
-  note ? res.json(note) : res.status(404).send("Note not found!");
+  Person.findById(req.params.id).then((data) => res.json(data));
 });
 
-const PORT = process.env.PORT || 4000;
+app.post("/api/persons/", (req, res) => {
+  const person = new Person(req.body);
+
+  person.save().then((data) => {
+    res.json(data);
+  });
+});
+
+const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`server running on port ${PORT}`));
