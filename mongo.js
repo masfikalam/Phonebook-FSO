@@ -7,7 +7,6 @@ if (terminal.length < 3) {
   process.exit(1);
 }
 
-// masfikalam-fso
 const url = `mongodb+srv://fso-2021:${terminal[2]}@cluster0.lcv2f.mongodb.net/phonebook?retryWrites=true&w=majority`;
 mongoose.connect(url);
 
