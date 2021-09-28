@@ -10,8 +10,17 @@ mongoose
   });
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    unique: [true, "contact already exists"],
+    required: [true, "name field is required"],
+    minlength: [3, "name should be at least 3 characters long"],
+  },
+  number: {
+    type: String,
+    required: [true, "number field is required"],
+    minlength: [8, "number should be at least 8 characters long"],
+  },
 });
 
 personSchema.set("toJSON", {

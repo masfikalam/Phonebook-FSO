@@ -28,12 +28,15 @@ app.get("/api/persons/:id", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-app.post("/api/persons/", (req, res) => {
+app.post("/api/persons/", (req, res, next) => {
   const person = new Person(req.body);
 
-  person.save().then((data) => {
-    res.json(data);
-  });
+  person
+    .save()
+    .then((data) => {
+      res.json(data);
+    })
+    .catch((err) => next(err));
 });
 
 app.delete("/api/persons/:id", (req, res, next) => {
@@ -45,7 +48,10 @@ app.delete("/api/persons/:id", (req, res, next) => {
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
-  Person.findByIdAndUpdate(req.params.id, req.body, { new: true })
+  Person.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  })
     .then((data) => res.json(data))
     .catch((err) => next(err));
 });
@@ -53,11 +59,15 @@ app.put("/api/persons/:id", (req, res, next) => {
 const errHandler = (err, req, res, next) => {
   console.error(err.message);
 
-  if (error.name === "CastError") {
+  if (err.name === "Caster") {
     return res.status(400).send({ error: "incorrect id" });
+  } else if (err.name === "ValidationError") {
+    return res.status(400).json({ error: err.message });
+  } else if (err.name === "MongoServerError") {
+    return res.status(400).json({ error: "contact already exists" });
   }
 
-  next(error);
+  next(err);
 };
 
 app.use(errHandler);
